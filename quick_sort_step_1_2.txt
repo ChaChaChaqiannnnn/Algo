@@ -1,0 +1,5 @@
+Partitioning with pivot 56205740 at index 1
+Swapped pivot with element at index 0: [56205740, 1981761604]
+Pivot placed at index 0 with value 56205740
+Current array: [56205740, 1981761604]
+
