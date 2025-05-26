@@ -5,12 +5,31 @@ public class merge_sort_step {
 
     private static BufferedWriter stepWriter;
 
-    public static void mergeSort(int[] arr) throws IOException {
-        if (arr == null || arr.length < 2) return;
+    // Data class holding integer + string pair
+    static class Data {
+        int key;
+        String val;
+        Data(int k, String v) { key = k; val = v; }
+    }
+
+    // Format array as [key/val, key/val, ...]
+    private static String formatArray(Data[] arr) {
+        StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < arr.length; i++) {
+            sb.append(arr[i].key).append("/").append(arr[i].val);
+            if (i != arr.length - 1) sb.append(", ");
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    // MergeSort entry
+    public static void mergeSort(Data[] arr) throws IOException {
         mergeSortHelper(arr, 0, arr.length - 1);
     }
 
-    private static void mergeSortHelper(int[] arr, int left, int right) throws IOException {
+    // Recursive merge sort with step logging
+    private static void mergeSortHelper(Data[] arr, int left, int right) throws IOException {
         if (left >= right) return;
         int mid = left + (right - left) / 2;
         mergeSortHelper(arr, left, mid);
@@ -18,17 +37,18 @@ public class merge_sort_step {
         merge(arr, left, mid, right);
     }
 
-    private static void merge(int[] arr, int left, int mid, int right) throws IOException {
-        int[] leftArr = Arrays.copyOfRange(arr, left, mid + 1);
-        int[] rightArr = Arrays.copyOfRange(arr, mid + 1, right + 1);
+    // Merge two subarrays and log the steps
+    private static void merge(Data[] arr, int left, int mid, int right) throws IOException {
+        Data[] leftArr = Arrays.copyOfRange(arr, left, mid + 1);
+        Data[] rightArr = Arrays.copyOfRange(arr, mid + 1, right + 1);
 
-        stepWriter.write(String.format("Merging subarrays [%d-%d] and [%d-%d]%n", left, mid, mid + 1, right));
-        stepWriter.write("Left: " + Arrays.toString(leftArr) + "\n");
-        stepWriter.write("Right: " + Arrays.toString(rightArr) + "\n");
+        // Log left and right arrays before merging
+        stepWriter.write(formatArray(leftArr) + "\n");
+        stepWriter.write(formatArray(rightArr) + "\n");
 
         int i = 0, j = 0, k = left;
         while (i < leftArr.length && j < rightArr.length) {
-            if (leftArr[i] <= rightArr[j]) {
+            if (leftArr[i].key <= rightArr[j].key) {
                 arr[k++] = leftArr[i++];
             } else {
                 arr[k++] = rightArr[j++];
@@ -37,7 +57,36 @@ public class merge_sort_step {
         while (i < leftArr.length) arr[k++] = leftArr[i++];
         while (j < rightArr.length) arr[k++] = rightArr[j++];
 
-        stepWriter.write("Merged: " + Arrays.toString(Arrays.copyOfRange(arr, left, right + 1)) + "\n\n");
+        // Log the merged array
+        stepWriter.write("Merged: " + formatArray(Arrays.copyOfRange(arr, left, right + 1)) + "\n\n");
+    }
+
+    // Read CSV data and return it as Data[]
+    private static List<Data> readCSV(String filename, int startRow, int endRow) throws IOException {
+        List<Data> list = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String line;
+            int row = 1;
+            while ((line = br.readLine()) != null) {
+                if (row >= startRow && row <= endRow) {
+                    String[] parts = line.split(",", 2);
+                    if (parts.length == 2) {
+                        try {
+                            int key = Integer.parseInt(parts[0].trim());
+                            String val = parts[1].trim();
+                            list.add(new Data(key, val));
+                        } catch (NumberFormatException e) {
+                            System.err.println("Skipping malformed integer at line " + row);
+                        }
+                    } else {
+                        System.err.println("Skipping malformed line at row " + row);
+                    }
+                }
+                if (row > endRow) break;
+                row++;
+            }
+        }
+        return list;
     }
 
     public static void main(String[] args) {
@@ -47,46 +96,35 @@ public class merge_sort_step {
         }
 
         String csvFile = args[0];
-        int startRow = Integer.parseInt(args[1]);
-        int endRow = Integer.parseInt(args[2]);
+        int startRow, endRow;
 
         try {
-            // Read integers from first column between startRow and endRow
-            List<Integer> data = new ArrayList<>();
-            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
-                String line;
-                int row = 1;
-                while ((line = br.readLine()) != null) {
-                    if (row >= startRow && row <= endRow) {
-                        String[] parts = line.split(",");
-                        if (parts.length > 0) {
-                            data.add(Integer.parseInt(parts[0].trim()));
-                        } else {
-                            System.err.println("Skipping malformed line " + row);
-                        }
-                    }
-                    row++;
-                    if (row > endRow) break;
-                }
-            }
+            startRow = Integer.parseInt(args[1]);
+            endRow = Integer.parseInt(args[2]);
+        } catch (NumberFormatException e) {
+            System.err.println("Start and end rows must be integers.");
+            return;
+        }
 
-            int[] arr = data.stream().mapToInt(i -> i).toArray();
+        try {
+            List<Data> dataList = readCSV(csvFile, startRow, endRow);
+            if (dataList.isEmpty()) {
+                System.err.println("No data found in the specified row range.");
+                return;
+            }
+            Data[] arr = dataList.toArray(new Data[0]);
 
             String outFile = String.format("merge_sort_step_%d_%d.txt", startRow, endRow);
-            System.out.println("Writing merge sort steps to file: " + outFile);
-            stepWriter = new BufferedWriter(new FileWriter(outFile));
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))) {
+                stepWriter = writer;
+                stepWriter.write("# Merge sort steps and sorted data\n");
+                stepWriter.write("Original Array:," + formatArray(arr) + "\n");
+                mergeSort(arr);
+            }
 
-            mergeSort(arr);
+            System.out.println("Merge sort steps saved to " + outFile);
 
-            stepWriter.close();
-            System.out.println("Finished writing steps.");
-
-            // Print sorted array on console
-            System.out.print("Sorted array: ");
-            for (int num : arr) System.out.print(num + " ");
-            System.out.println();
-
-        } catch (Exception e) {
+        } catch (IOException e) {
             System.err.println("Error:");
             e.printStackTrace();
         }
