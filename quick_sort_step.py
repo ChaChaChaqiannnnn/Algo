@@ -1,73 +1,79 @@
 import sys
 
-def swap(arr, i, j):
-    if i != j:
-        arr[i], arr[j] = arr[j], arr[i]
+def quicksort(arr, low, high, log_file):
+    if low < high:
+        pi = partition(arr, low, high, log_file)
 
-def partition(arr, low, high, step_file):
-    pivot = arr[high]
-    step_file.write(f"Partitioning with pivot {pivot} at index {high}\n")
+        log_file.write(f"Pivot placed at index {pi} with value {arr[pi][0]}\n")
+        log_file.write("Current array: " + " ".join(str(x[0]) for x in arr) + "\n\n")
+
+        quicksort(arr, low, pi - 1, log_file)
+        quicksort(arr, pi + 1, high, log_file)
+
+def partition(arr, low, high, log_file):
+    pivot = arr[high][0]
+    log_file.write(f"Partitioning with pivot {pivot} at index {high}\n")
     i = low - 1
-
     for j in range(low, high):
-        if arr[j] <= pivot:
+        if arr[j][0] <= pivot:
             i += 1
-            swap(arr, i, j)
-            step_file.write(f"Swapped elements at indices {i} and {j}: {arr}\n")
-
-    swap(arr, i + 1, high)
-    step_file.write(f"Swapped pivot with element at index {i+1}: {arr}\n")
-
+            arr[i], arr[j] = arr[j], arr[i]
+            log_file.write(f"Swapped elements at indices {i} and {j}: " + " ".join(str(x[0]) for x in arr) + "\n")
+    arr[i+1], arr[high] = arr[high], arr[i+1]
+    log_file.write(f"Swapped pivot with element at index {i+1}: " + " ".join(str(x[0]) for x in arr) + "\n")
     return i + 1
 
-def quick_sort_helper(arr, low, high, step_file):
-    if low < high:
-        pi = partition(arr, low, high, step_file)
-        step_file.write(f"Pivot placed at index {pi} with value {arr[pi]}\n")
-        step_file.write(f"Current array: {arr}\n\n")
-        quick_sort_helper(arr, low, pi - 1, step_file)
-        quick_sort_helper(arr, pi + 1, high, step_file)
-
-def quick_sort(arr, step_file):
-    quick_sort_helper(arr, 0, len(arr) - 1, step_file)
-
-def read_csv_first_column(filename, start_row, end_row):
+def read_csv(filename, start_row, end_row):
     data = []
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         for idx, line in enumerate(f, 1):
             if idx < start_row:
                 continue
             if idx > end_row:
                 break
-            parts = line.strip().split(',')
-            if len(parts) > 0:
+            parts = line.strip().split(",", 1)
+            if len(parts) == 2:
                 try:
-                    data.append(int(parts[0]))
+                    key = int(parts[0].strip())
+                    val = parts[1].strip()
+                    data.append((key, val))
                 except ValueError:
                     print(f"Skipping malformed integer at line {idx}")
+            else:
+                print(f"Skipping malformed line at line {idx}")
     return data
 
 def main():
     if len(sys.argv) < 4:
         print("Usage: python quick_sort_step.py <csv_file> <start_row> <end_row>")
-        return
+        sys.exit(1)
 
     csv_file = sys.argv[1]
-    start_row = int(sys.argv[2])
-    end_row = int(sys.argv[3])
+    try:
+        start_row = int(sys.argv[2])
+        end_row = int(sys.argv[3])
+    except ValueError:
+        print("Start and end rows must be integers.")
+        sys.exit(1)
 
-    arr = read_csv_first_column(csv_file, start_row, end_row)
+    if start_row > end_row or start_row < 1:
+        print("Invalid row range.")
+        sys.exit(1)
 
-    if not arr:
-        print("No data read from the CSV file within the specified rows.")
-        return
+    data = read_csv(csv_file, start_row, end_row)
 
-    out_file = f"quick_sort_step_{start_row}_{end_row}.txt"
-    with open(out_file, 'w') as step_file:
-        quick_sort(arr, step_file)
+    if not data:
+        print("No data found in the specified row range.")
+        sys.exit(1)
 
-    print(f"Sorted array: {' '.join(map(str, arr))}")
-    print(f"Quick sort steps saved to {out_file}")
+    log_filename = f"quick_sort_step_{start_row}_{end_row}.txt"
+    with open(log_filename, "w") as log_file:
+        quicksort(data, 0, len(data)-1, log_file)
+
+    print(f"Quick sort steps written to {log_filename}")
+
+    print("Sorted array keys: " + " ".join(str(x[0]) for x in data))
 
 if __name__ == "__main__":
     main()
+
