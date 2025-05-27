@@ -10,34 +10,26 @@ class Data {
         this.key = key;
         this.value = value;
     }
-
-    @Override
-    public String toString() {
-        return key + "," + value;
-    }
 }
 
 public class binary_search {
 
-    // Binary search implementation
-    public static int binarySearch(List<Data> arr, long targetKey) {
-        int left = 0;
-        int right = arr.size() - 1;
-
+    public static int binarySearch(List<Data> list, long targetKey) {
+        int left = 0, right = list.size() - 1;
         while (left <= right) {
-            int mid = (left + right) / 2;
-            if (arr.get(mid).key == targetKey) {
-                return mid;  // Target found
-            } else if (arr.get(mid).key < targetKey) {
+            int mid = (left + right) >>> 1;  // Avoid overflow
+            long midKey = list.get(mid).key;
+            if (midKey == targetKey) {
+                return mid;
+            } else if (midKey < targetKey) {
                 left = mid + 1;
             } else {
                 right = mid - 1;
             }
         }
-        return -1;  // Target not found
+        return -1;
     }
 
-    // Read the CSV file and return a list of Data objects
     public static List<Data> readCSV(String filename) throws IOException {
         List<Data> dataList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
@@ -54,62 +46,68 @@ public class binary_search {
         return dataList;
     }
 
-    // Write the running times to a file
     public static void writeSearchTimes(String filename, double bestTime, double avgTime, double worstTime) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-            writer.write("Best case running time: " + bestTime + " seconds\n");
-            writer.write("Average case running time: " + avgTime + " seconds\n");
-            writer.write("Worst case running time: " + worstTime + " seconds\n");
+            writer.write(String.format("Best case running time: %.6e seconds%n", bestTime));
+            writer.write(String.format("Average case running time: %.6e seconds%n", avgTime));
+            writer.write(String.format("Worst case running time: %.6e seconds%n", worstTime));
         }
     }
 
     public static void main(String[] args) {
-        String inputFile = "merge_sort_1000000.csv";  // Input file with sorted data
-        String outputFile = "binary_search_1000000.txt";  // Output file for running times
+        String inputFile = "merge_sort_1000000.csv";
+        String outputFile = "binary_search_1000000.txt";
 
         try {
             System.out.println("Reading sorted data from input file...");
             List<Data> data = readCSV(inputFile);
+            int datasetSize = data.size();
+            if (datasetSize == 0) {
+                System.err.println("Dataset is empty!");
+                return;
+            }
 
-            int n = data.size();  // Size of dataset
+            int n = 100000;  // Number of searches to perform (set as desired)
 
-            // Best case: Search for the middle element in each iteration
+            // Prepare targets for each case
+            long bestTarget = data.get(datasetSize / 2).key;
+            long avgTarget = data.get(Math.min(datasetSize / 2 + 1, datasetSize - 1)).key;
+            long worstTarget = -1L;  // Non-existent element
+
+            // Best case timing
             System.out.println("Testing best case (middle element)...");
-            long startTime = System.nanoTime();
+            long start = System.nanoTime();
             for (int i = 0; i < n; i++) {
-                long targetBest = data.get(n / 2).key;  // Middle element
-                binarySearch(data, targetBest);
+                binarySearch(data, bestTarget);
             }
-            long endTime = System.nanoTime();
-            double bestTime = (endTime - startTime) / 1e9 / n;  // Average time per search in best case
+            long end = System.nanoTime();
+            double bestTime = (end - start) / 1e9 / n;  // average time in seconds
 
-            // Average case: Search for a random element near the middle
-            System.out.println("Testing average case (random element near middle)...");
-            startTime = System.nanoTime();
+            // Average case timing
+            System.out.println("Testing average case (element near middle)...");
+            start = System.nanoTime();
             for (int i = 0; i < n; i++) {
-                long targetAvg = data.get(Math.min(n / 2 + 1, n - 1)).key;  // Safe index near middle
-                binarySearch(data, targetAvg);
+                binarySearch(data, avgTarget);
             }
-            endTime = System.nanoTime();
-            double avgTime = (endTime - startTime) / 1e9 / n;  // Average time per search in average case
+            end = System.nanoTime();
+            double avgTime = (end - start) / 1e9 / n;
 
-            // Worst case: Search for an element that doesn't exist
+            // Worst case timing
             System.out.println("Testing worst case (non-existent element)...");
-            startTime = System.nanoTime();
+            start = System.nanoTime();
             for (int i = 0; i < n; i++) {
-                long targetWorst = -1;  // Element that doesn't exist
-                binarySearch(data, targetWorst);
+                binarySearch(data, worstTarget);
             }
-            endTime = System.nanoTime();
-            double worstTime = (endTime - startTime) / 1e9 / n;  // Average time per search in worst case
+            end = System.nanoTime();
+            double worstTime = (end - start) / 1e9 / n;
 
-            System.out.println("Writing results to output file...");
+            // Write results to output file
             writeSearchTimes(outputFile, bestTime, avgTime, worstTime);
 
-            System.out.println("Done.");
+            System.out.println("Benchmark complete. Results saved to " + outputFile);
 
         } catch (IOException e) {
-            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

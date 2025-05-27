@@ -6,79 +6,76 @@ class Data:
         self.key = int(key)
         self.value = value
 
-    def __repr__(self):
-        return f"{self.key},{self.value}"
-
 def binary_search(arr, target_key):
     left, right = 0, len(arr) - 1
     while left <= right:
         mid = (left + right) // 2
         if arr[mid].key == target_key:
-            return mid  # Target found
+            return mid
         elif arr[mid].key < target_key:
             left = mid + 1
         else:
             right = mid - 1
-    return -1  # Target not found
+    return -1
 
 def read_csv(filename):
     data_list = []
     with open(filename, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            if len(row) == 2:
-                key = row[0].strip()
-                value = row[1].strip()
-                if key.isdigit():
-                    data_list.append(Data(key, value))
+            if len(row) == 2 and row[0].isdigit():
+                data_list.append(Data(row[0].strip(), row[1].strip()))
     return data_list
 
 def write_search_times(filename, best_time, avg_time, worst_time):
-    with open(filename, mode='w', newline='') as file:
-        file.write(f"Best case running time: {best_time:.6f} seconds\n")
-        file.write(f"Average case running time: {avg_time:.6f} seconds\n")
-        file.write(f"Worst case running time: {worst_time:.6f} seconds\n")
+    with open(filename, 'w') as f:
+        f.write(f"Best case running time: {best_time:.6e} seconds\n")
+        f.write(f"Average case running time: {avg_time:.6e} seconds\n")
+        f.write(f"Worst case running time: {worst_time:.6e} seconds\n")
 
 def main():
-    input_file = "merge_sort_1000000.csv"  # Input file with sorted data
-    output_file = "binary_search_1000000.txt"  # Output file for running times
+    input_file = "merge_sort_1000000.csv"
+    output_file = "binary_search_1000000.txt"
 
-    print("Reading sorted data from input file...")
     data = read_csv(input_file)
+    dataset_size = len(data)
+    if dataset_size == 0:
+        print("Dataset is empty!")
+        return
 
-    n = len(data)  # Size of dataset
+    # Explicit number of searches to perform
+    n = 100000  # For example, 100,000 searches; you can change this as needed
 
-    # Best case: Search for the middle element in each iteration
-    print("Testing best case (middle element)...")
-    start_time = time.perf_counter()
-    for _ in range(n):  # Perform n searches for the best case
-        target_best = data[n // 2].key  # Middle element
-        binary_search(data, target_best)
-    end_time = time.perf_counter()
-    best_time = (end_time - start_time) / n  # Average time per search in best case
+    # Prepare targets safely
+    middle_index = dataset_size // 2
+    best_target = data[middle_index].key
+    avg_target = data[min(middle_index + 1, dataset_size - 1)].key
+    worst_target = -1  # Not in dataset
 
-    # Average case: Search for a random element near the middle
-    print("Testing average case (random element near middle)...")
-    start_time = time.perf_counter()
-    for _ in range(n):  # Perform n searches for the average case
-        target_avg = data[min(n // 2 + 1, n - 1)].key  # Safe index near middle
-        binary_search(data, target_avg)
-    end_time = time.perf_counter()
-    avg_time = (end_time - start_time) / n  # Average time per search in average case
+    # Run n searches for best case
+    start = time.perf_counter()
+    for _ in range(n):
+        binary_search(data, best_target)
+    end = time.perf_counter()
+    best_time = (end - start) / n
 
-    # Worst case: Search for an element that doesn't exist
-    print("Testing worst case (non-existent element)...")
-    start_time = time.perf_counter()
-    for _ in range(n):  # Perform n searches for the worst case
-        target_worst = -1  # Element that doesn't exist
-        binary_search(data, target_worst)
-    end_time = time.perf_counter()
-    worst_time = (end_time - start_time) / n  # Average time per search in worst case
+    # Run n searches for average case
+    start = time.perf_counter()
+    for _ in range(n):
+        binary_search(data, avg_target)
+    end = time.perf_counter()
+    avg_time = (end - start) / n
 
-    print("Writing results to output file...")
+    # Run n searches for worst case
+    start = time.perf_counter()
+    for _ in range(n):
+        binary_search(data, worst_target)
+    end = time.perf_counter()
+    worst_time = (end - start) / n
+
     write_search_times(output_file, best_time, avg_time, worst_time)
-
-    print("Done.")
+    print(f"Performed {n} searches per case.")
+    print(f"Running times saved to {output_file}")
 
 if __name__ == "__main__":
     main()
