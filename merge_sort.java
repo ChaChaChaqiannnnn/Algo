@@ -1,82 +1,78 @@
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-
-class Data {
-    long key;
-    String value;
-
-    Data(long key, String value) {
-        this.key = key;
-        this.value = value;
-    }
-
-    @Override
-    public String toString() {
-        return key + "," + value;
-    }
-}
+import java.util.*;
 
 public class merge_sort {
 
-    public static void mergeSort(Data[] arr, int left, int right) {
-        if (left < right) {
-            int mid = (left + right) / 2;
-            mergeSort(arr, left, mid);
-            mergeSort(arr, mid + 1, right);
-            merge(arr, left, mid, right);
+    static class Data {
+        int key;
+        String value;
+
+        Data(int key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return key + "," + value;
         }
     }
 
-    private static void merge(Data[] arr, int left, int mid, int right) {
-        int n1 = mid - left + 1;
-        int n2 = right - mid;
+    // Stable merge sort by string value
+    public static void mergeSort(List<Data> list) {
+        if (list.size() > 1) {
+            int mid = list.size() / 2;
+            List<Data> left = new ArrayList<>(list.subList(0, mid));
+            List<Data> right = new ArrayList<>(list.subList(mid, list.size()));
 
-        Data[] leftArr = new Data[n1];
-        Data[] rightArr = new Data[n2];
+            mergeSort(left);
+            mergeSort(right);
 
-        for (int i = 0; i < n1; i++)
-            leftArr[i] = arr[left + i];
-        for (int j = 0; j < n2; j++)
-            rightArr[j] = arr[mid + 1 + j];
-
-        int i = 0, j = 0, k = left;
-
-        // Compare based on string value, alphabetical order
-        while (i < n1 && j < n2) {
-            if (leftArr[i].value.compareTo(rightArr[j].value) <= 0) {
-                arr[k++] = leftArr[i++];
-            } else {
-                arr[k++] = rightArr[j++];
+            int i = 0, j = 0, k = 0;
+            while (i < left.size() && j < right.size()) {
+                if (left.get(i).value.compareTo(right.get(j).value) <= 0) {
+                    list.set(k++, left.get(i++));
+                } else {
+                    list.set(k++, right.get(j++));
+                }
+            }
+            while (i < left.size()) {
+                list.set(k++, left.get(i++));
+            }
+            while (j < right.size()) {
+                list.set(k++, right.get(j++));
             }
         }
-        while (i < n1)
-            arr[k++] = leftArr[i++];
-        while (j < n2)
-            arr[k++] = rightArr[j++];
     }
 
-    public static Data[] readCSV(String filename) throws IOException {
+    // Read CSV into List<Data>
+    public static List<Data> readCSV(String filename) throws IOException {
         List<Data> dataList = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",", 2);
                 if (parts.length == 2) {
-                    long key = Long.parseLong(parts[0].trim());
-                    String value = parts[1].trim();
-                    dataList.add(new Data(key, value));
+                    try {
+                        int key = Integer.parseInt(parts[0].trim());
+                        String val = parts[1].trim();
+                        dataList.add(new Data(key, val));
+                    } catch (NumberFormatException e) {
+                        System.err.println("Skipping invalid line (bad key): " + line);
+                    }
                 }
             }
         }
-        return dataList.toArray(new Data[0]);
+        return dataList;
     }
 
-    public static void writeCSV(Data[] data, String filename, int maxRows) throws IOException {
+    // Write only first 5 rows to CSV
+    public static void writeCSVFirst5(List<Data> data, String filename) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
-            int rowsToWrite = Math.min(maxRows, data.length);
-            for (int i = 0; i < rowsToWrite; i++) {
-                bw.write(data[i].toString());
+            int limit = Math.min(5, data.size());
+            for (int i = 0; i < limit; i++) {
+                Data d = data.get(i);
+                bw.write(d.key + "," + d.value);
                 bw.newLine();
             }
         }
@@ -88,22 +84,25 @@ public class merge_sort {
 
         try {
             System.out.println("Reading input file...");
-            Data[] data = readCSV(inputFile);
+            List<Data> data = readCSV(inputFile);
+            int inputSize = data.size();
 
-            System.out.println("Starting merge sort by string value...");
+            System.out.println("Sorting by string value...");
             long startTime = System.currentTimeMillis();
 
-            mergeSort(data, 0, data.length - 1);
+            mergeSort(data);
 
             long endTime = System.currentTimeMillis();
-            double elapsedSeconds = (endTime - startTime) / 1000.0;
+            long elapsedMs = endTime - startTime;
 
-            System.out.printf("Merge sort completed in %.3f seconds.%n", elapsedSeconds);
+            System.out.println("Sorting completed.");
+            System.out.println("Input size: " + inputSize);
+            System.out.println("Time taken (ms): " + elapsedMs);
 
             System.out.println("Writing first 5 sorted rows to output file...");
-            writeCSV(data, outputFile, 5);
+            writeCSVFirst5(data, outputFile);
 
-            System.out.println("All done!");
+            System.out.println("Sorted data written to " + outputFile);
 
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());
