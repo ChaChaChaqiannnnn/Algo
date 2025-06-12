@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 
+// from data dataset_1000000.csv
 public class quick_sort_1 {
 
     static class Data {
@@ -70,6 +71,16 @@ public class quick_sort_1 {
         return dataList.toArray(new Data[0]);
     }
 
+    // Write sorted data to CSV
+    private static void writeSortedCSV(String filename, Data[] arr) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filename))) {
+            for (Data d : arr) {
+                bw.write(d.key + "," + d.val);
+                bw.newLine();
+            }
+        }
+    }
+
     public static void main(String[] args) {
         if (args.length != 1) {
             System.out.println("Usage: java QuickSortCSV <csv-file-path>");
@@ -82,6 +93,9 @@ public class quick_sort_1 {
 
             // Sort the array
             quickSort(dataArray);
+
+            // Write sorted data to quick_sort_1000000.csv
+            writeSortedCSV("quick_sort_1_1000000.csv", dataArray);
 
             // Print first 20 sorted records
             System.out.println("First 20 sorted entries:");

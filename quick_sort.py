@@ -1,5 +1,7 @@
 import csv
 
+# from data data_sample_10000.csv
+
 class Data:
     def __init__(self, key, val):
         self.key = key

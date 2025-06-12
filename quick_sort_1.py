@@ -1,6 +1,8 @@
 import random
 import time
 
+
+# from data dataset_1000000.csv
 class Data:
     def __init__(self, key, val):
         self.key = key

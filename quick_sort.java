@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 
+//from data data_sample_10000.csv
 public class quick_sort {
 
     static class Data {
