@@ -104,7 +104,11 @@ public class binary_search {
             // Write results to output file
             writeSearchTimes(outputFile, bestTime, avgTime, worstTime);
 
-            System.out.println("Benchmark complete. Results saved to " + outputFile);
+            System.out.println("Benchmark complete.");
+            System.out.printf("Best case time: %.6f seconds%n", bestTime);
+            System.out.printf("Average case time: %.6f seconds%n", avgTime);
+            System.out.printf("Worst case time: %.6f seconds%n", worstTime);
+            System.out.println("Results saved to " + outputFile);
 
         } catch (IOException e) {
             e.printStackTrace();

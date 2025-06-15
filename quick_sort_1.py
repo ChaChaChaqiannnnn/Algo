@@ -68,13 +68,13 @@ def main():
     quick_sort_wrapper(data)
     end_time = time.time()
 
-    time_taken_ms = int((end_time - start_time) * 1000)
+    time_taken = end_time - start_time
 
     write_csv(output_file, data)
 
     print("Sorting completed.")
     print(f"Input size: {input_size}")
-    print(f"Time taken (ms): {time_taken_ms}")
+    print(f"Time taken: {time_taken:.6f} seconds")
     print(f"Sorted data written to {output_file}")
 
 if __name__ == "__main__":

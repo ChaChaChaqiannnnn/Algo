@@ -42,10 +42,6 @@ public class merge_sort_step {
         Data[] leftArr = Arrays.copyOfRange(arr, left, mid + 1);
         Data[] rightArr = Arrays.copyOfRange(arr, mid + 1, right + 1);
 
-        // Log left and right arrays before merging
-        stepWriter.write(formatArray(leftArr) + "\n");
-        stepWriter.write(formatArray(rightArr) + "\n");
-
         int i = 0, j = 0, k = left;
         while (i < leftArr.length && j < rightArr.length) {
             if (leftArr[i].key <= rightArr[j].key) {
@@ -57,8 +53,8 @@ public class merge_sort_step {
         while (i < leftArr.length) arr[k++] = leftArr[i++];
         while (j < rightArr.length) arr[k++] = rightArr[j++];
 
-        // Log the merged array
-        stepWriter.write("Merged: " + formatArray(Arrays.copyOfRange(arr, left, right + 1)) + "\n\n");
+        // Log the entire array state after this merge
+        stepWriter.write(formatArray(arr) + "\n");
     }
 
     // Read CSV data and return it as Data[]

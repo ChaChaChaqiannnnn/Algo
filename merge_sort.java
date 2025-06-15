@@ -4,10 +4,10 @@ import java.util.*;
 public class merge_sort {
 
     static class Data {
-        int key;
+        long key;
         String value;
 
-        Data(int key, String value) {
+        Data(long key, String value) {
             this.key = key;
             this.value = value;
         }
@@ -54,7 +54,7 @@ public class merge_sort {
                 String[] parts = line.split(",", 2);
                 if (parts.length == 2) {
                     try {
-                        int key = Integer.parseInt(parts[0].trim());
+                        long key = Long.parseLong(parts[0].trim());
                         String val = parts[1].trim();
                         dataList.add(new Data(key, val));
                     } catch (NumberFormatException e) {
@@ -93,11 +93,11 @@ public class merge_sort {
             mergeSort(data);
 
             long endTime = System.currentTimeMillis();
-            long elapsedMs = endTime - startTime;
+            double elapsedSeconds = (endTime - startTime) / 1000.0;
 
             System.out.println("Sorting completed.");
             System.out.println("Input size: " + inputSize);
-            System.out.println("Time taken (ms): " + elapsedMs);
+            System.out.printf("Time taken: %.6f seconds%n", elapsedSeconds);
 
             System.out.println("Writing first 5 sorted rows to output file...");
             writeCSVFirst5(data, outputFile);

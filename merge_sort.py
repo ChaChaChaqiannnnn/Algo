@@ -3,7 +3,7 @@ import time
 
 class Data:
     def __init__(self, key, value):
-        self.key = int(key)
+        self.key = int(key)  # Python's int can handle large numbers
         self.value = value
 
     def __repr__(self):
@@ -72,7 +72,7 @@ def main():
 
     end_time = time.time()
     elapsed = end_time - start_time
-    print(f"Sorting completed in {elapsed:.3f} seconds.")
+    print(f"Sorting completed in {elapsed:.6f} seconds.")
 
     print("Writing first 5 sorted rows to output file...")
     write_csv(data, output_file)

@@ -92,7 +92,10 @@ public class quick_sort_1 {
             Data[] dataArray = readCSV(args[0]);
 
             // Sort the array
+            long startTime = System.currentTimeMillis();
             quickSort(dataArray);
+            long endTime = System.currentTimeMillis();
+            double elapsedSeconds = (endTime - startTime) / 1000.0;
 
             // Write sorted data to quick_sort_1000000.csv
             writeSortedCSV("quick_sort_1_1000000.csv", dataArray);
@@ -102,6 +105,7 @@ public class quick_sort_1 {
             for (int i = 0; i < Math.min(20, dataArray.length); i++) {
                 System.out.println(dataArray[i].key + ", " + dataArray[i].val);
             }
+            System.out.printf("Time taken: %.6f seconds%n", elapsedSeconds);
 
         } catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
