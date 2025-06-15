@@ -59,7 +59,6 @@ public class binary_search {
         String outputFile = "binary_search_1000000.txt";
 
         try {
-            System.out.println("Reading sorted data from input file...");
             List<Data> data = readCSV(inputFile);
             int datasetSize = data.size();
             if (datasetSize == 0) {
@@ -75,7 +74,6 @@ public class binary_search {
             long worstTarget = -1L;  // Non-existent element
 
             // Best case timing
-            System.out.println("Testing best case (middle element)...");
             long start = System.nanoTime();
             for (int i = 0; i < n; i++) {
                 binarySearch(data, bestTarget);
@@ -84,7 +82,6 @@ public class binary_search {
             double bestTime = (end - start) / 1e9 / n;  // average time in seconds
 
             // Average case timing
-            System.out.println("Testing average case (element near middle)...");
             start = System.nanoTime();
             for (int i = 0; i < n; i++) {
                 binarySearch(data, avgTarget);
@@ -93,7 +90,6 @@ public class binary_search {
             double avgTime = (end - start) / 1e9 / n;
 
             // Worst case timing
-            System.out.println("Testing worst case (non-existent element)...");
             start = System.nanoTime();
             for (int i = 0; i < n; i++) {
                 binarySearch(data, worstTarget);
@@ -104,11 +100,8 @@ public class binary_search {
             // Write results to output file
             writeSearchTimes(outputFile, bestTime, avgTime, worstTime);
 
-            System.out.println("Benchmark complete.");
-            System.out.printf("Best case time: %.6f seconds%n", bestTime);
-            System.out.printf("Average case time: %.6f seconds%n", avgTime);
-            System.out.printf("Worst case time: %.6f seconds%n", worstTime);
-            System.out.println("Results saved to " + outputFile);
+            // Print the message to the command prompt
+            System.out.println("Results stored in binary_search_1000000.txt");
 
         } catch (IOException e) {
             e.printStackTrace();

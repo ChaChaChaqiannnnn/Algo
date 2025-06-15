@@ -75,9 +75,6 @@ def main():
 
     write_search_times(output_file, best_time, avg_time, worst_time)
     print(f"Performed {n} searches per case.")
-    print(f"Best case time: {best_time:.6f} seconds")
-    print(f"Average case time: {avg_time:.6f} seconds")
-    print(f"Worst case time: {worst_time:.6f} seconds")
     print(f"Running times saved to {output_file}")
 
 if __name__ == "__main__":
