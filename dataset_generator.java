@@ -79,11 +79,17 @@ public class dataset_generator {
     }
 
     public static void main(String[] args) {
-        // Generate a dataset of 1 million records
-        int size = 1000000;
-        String filename = "dataset_1000000.csv";
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter the number of records to generate: ");
+        int size = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        String filename = "dataset_" + size + ".csv";
 
         generateDataset(size, filename);
         verifyDataset(filename);
+
+        scanner.close();
     }
 }
