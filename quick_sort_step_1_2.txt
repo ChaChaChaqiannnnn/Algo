@@ -1,0 +1,3 @@
+# Quicksort steps and sorted data
+Original Array:,[1981761604/uoren, 56205740/igerk]
+pi=0,[56205740/igerk, 1981761604/uoren]

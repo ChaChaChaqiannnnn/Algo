@@ -66,13 +66,17 @@ def main():
         print("Start and end rows must be integers.")
         return
 
+    # Count total rows in the CSV file
+    with open(csv_file, 'r') as f:
+        total_rows = sum(1 for _ in f)
+
     data = read_csv(csv_file, start_row, end_row)
     if not data:
         print("No data found in the specified row range.")
         return
 
-    # Create the output text file for quicksort steps
-    output_file = f"quick_sort_step_{start_row}_{end_row}.txt"
+    # Output file includes total_rows, start_row, end_row
+    output_file = f"quick_sort_step_{total_rows}_{start_row}_{end_row}.txt"
     with open(output_file, 'w') as f:
         f.write("# Quicksort steps and sorted data\n")
         f.write("Original Array:," + format_array(data) + "\n")

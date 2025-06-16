@@ -51,22 +51,25 @@ def main():
         print("Usage: python3 binary_search_step.py <sorted_dataset_file> <target_integer>")
         return
 
-    sorted_file = sys.argv[1]  # Expect the file name as an argument
+    sorted_file = sys.argv[1]
     try:
-        target = int(sys.argv[2])  # Target value for binary search
+        target = int(sys.argv[2])
     except ValueError:
         print("Target must be an integer.")
         return
 
     try:
-        # Read data from the CSV file (e.g., quick_sort_1000.csv)
+        # Read data from the CSV file
         arr = read_data(sorted_file)
         if not arr:
             print("Dataset is empty.")
             return
 
-        # Define output file name based on target value
-        out_file = f"binary_search_step_{target}.txt"
+        # Count total rows in the CSV file
+        total_rows = len(arr)
+
+        # Define output file name based on total rows and target value
+        out_file = f"binary_search_step_{total_rows}_{target}.txt"
         with open(out_file, 'w') as writer:
             found_index = binary_search(arr, target, writer)
 
