@@ -79,8 +79,11 @@ public class binary_search_step {
                 return;
             }
 
-            // Define output file name based on target value
-            String outFile = String.format("binary_search_step_%d.txt", target);
+            // Count total rows in the CSV file
+            int totalRows = arr.length;
+
+            // Define output file name based on total rows and target value
+            String outFile = String.format("binary_search_step_%d_%d.txt", totalRows, target);
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outFile))) {
                 int foundIndex = binarySearch(arr, target, writer);
                 if (foundIndex >= 0) {

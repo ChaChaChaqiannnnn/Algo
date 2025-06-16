@@ -80,13 +80,17 @@ def main():
     start_row = int(sys.argv[2])
     end_row = int(sys.argv[3])
 
+    # Count total rows in the CSV file
+    with open(csv_file, 'r') as f:
+        total_rows = sum(1 for _ in f)
+
     arr = read_csv(csv_file, start_row, end_row)
 
     if not arr:
         print("No data read from the CSV file within the specified rows.")
         sys.exit(1)
 
-    out_file = f"merge_sort_step_{start_row}_{end_row}.txt"
+    out_file = f"merge_sort_{total_rows}_{start_row}_{end_row}.txt"
     with open(out_file, 'w') as step_file:
         step_file.write("# Merge sort steps and sorted data\n")
         step_file.write("Original Array:," + format_array(arr) + "\n")

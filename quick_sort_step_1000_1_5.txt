@@ -1,0 +1,5 @@
+# Quicksort steps and sorted data
+Original Array:,[459255260/uwgzsg, 431718795/rwsegh, 589252873/jxfwzi, 929772410/tzcmou, 856414689/wndxed]
+pi=3,[459255260/uwgzsg, 431718795/rwsegh, 589252873/jxfwzi, 856414689/wndxed, 929772410/tzcmou]
+pi=2,[459255260/uwgzsg, 431718795/rwsegh, 589252873/jxfwzi, 856414689/wndxed, 929772410/tzcmou]
+pi=0,[431718795/rwsegh, 459255260/uwgzsg, 589252873/jxfwzi, 856414689/wndxed, 929772410/tzcmou]

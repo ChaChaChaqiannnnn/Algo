@@ -110,6 +110,12 @@ public class quick_sort_step {
         }
 
         try {
+            // Count total rows in the CSV file
+            int totalRows = 0;
+            try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
+                while (br.readLine() != null) totalRows++;
+            }
+
             List<Data> dataList = readCSV(csvFile, startRow, endRow);
             if (dataList.isEmpty()) {
                 System.err.println("No data found in the specified row range.");
@@ -117,7 +123,7 @@ public class quick_sort_step {
             }
             Data[] arr = dataList.toArray(new Data[0]);
 
-            String logFile = String.format("quick_sort_step_%d_%d.txt", startRow, endRow);
+            String logFile = String.format("quick_sort_step_%d_%d_%d.txt", totalRows, startRow, endRow);
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFile))) {
                 stepWriter = writer;
                 stepWriter.write("# Quicksort steps and sorted data\n");
