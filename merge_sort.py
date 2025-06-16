@@ -1,9 +1,11 @@
 import csv
 import time
+import re
+import sys
 
 class Data:
     def __init__(self, key, value):
-        self.key = int(key)  # Python's int can handle large numbers
+        self.key = int(key)
         self.value = value
 
     def __repr__(self):
@@ -20,7 +22,6 @@ def merge_sort(arr):
 
         i = j = k = 0
 
-        # Merge by string value, stable sorting
         while i < len(left_half) and j < len(right_half):
             if left_half[i].value <= right_half[j].value:
                 arr[k] = left_half[i]
@@ -59,25 +60,50 @@ def write_csv(data, filename, max_rows=5):
             writer.writerow([d.key, d.value])
 
 def main():
-    input_file = "dataset_1000000.csv"
-    output_file = "merge_sort_1000000.csv"
+    if len(sys.argv) < 2:
+        print("Usage: python merge_sort.py <input_csv>")
+        return
 
-    print("Reading input file...")
+    input_file = sys.argv[1]
+    match = re.search(r'(\d+)', input_file)
+    num_part = match.group(1) if match else ''
+    output_file = f"merge_sort_{num_part}.csv"
+
+    # Read data
+    load_start = time.time()
     data = read_csv(input_file)
+    load_time = time.time() - load_start
 
-    print("Sorting by string value...")
+    if not data:
+        print("No valid data to sort.")
+        return
+
+    # Average case (random order)
+    avg_case = [Data(d.key, d.value) for d in data]
     start_time = time.time()
+    merge_sort(avg_case)
+    avg_time = time.time() - start_time
 
-    merge_sort(data)
+    # Best case (already sorted by value)
+    best_case = sorted(data, key=lambda d: d.value)
+    start_time = time.time()
+    merge_sort(best_case)
+    best_time = time.time() - start_time
 
-    end_time = time.time()
-    elapsed = end_time - start_time
-    print(f"Sorting completed in {elapsed:.6f} seconds.")
+    # Worst case (reverse sorted by value)
+    worst_case = sorted(data, key=lambda d: d.value, reverse=True)
+    start_time = time.time()
+    merge_sort(worst_case)
+    worst_time = time.time() - start_time
 
-    print("Writing first 5 sorted rows to output file...")
-    write_csv(data, output_file)
+    # Write the sorted output for average case only
+    write_csv(avg_case, output_file)
 
-    print("Done.")
+    # Print only the runtimes
+    print(f"Dataset loading time: {load_time:.6f} seconds")
+    print(f"Best case: {best_time:.6f} seconds")
+    print(f"Average case: {avg_time:.6f} seconds")
+    print(f"Worst case: {worst_time:.6f} seconds")
 
 if __name__ == "__main__":
     main()

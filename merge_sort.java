@@ -1,5 +1,7 @@
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class merge_sort {
 
@@ -79,30 +81,65 @@ public class merge_sort {
     }
 
     public static void main(String[] args) {
-        String inputFile = "dataset_1000000.csv";
-        String outputFile = "merge_sort_1000000.csv";
+        if (args.length < 1) {
+            System.out.println("Usage: java merge_sort <input_csv>");
+            return;
+        }
+        String inputFile = args[0];
+
+        // Extract number from input file name
+        Pattern p = Pattern.compile("(\\d+)");
+        Matcher m = p.matcher(inputFile);
+        String numPart = "";
+        if (m.find()) {
+            numPart = m.group(1);
+        }
+        String outputFile = "merge_sort_" + numPart + ".csv";
 
         try {
-            System.out.println("Reading input file...");
+            // Measure dataset loading time
+            long loadStart = System.nanoTime();
             List<Data> data = readCSV(inputFile);
-            int inputSize = data.size();
+            long loadEnd = System.nanoTime();
+            double loadTime = (loadEnd - loadStart) / 1e9;
 
-            System.out.println("Sorting by string value...");
-            long startTime = System.currentTimeMillis();
+            if (data.isEmpty()) {
+                System.err.println("No valid data found in the file.");
+                return;
+            }
 
-            mergeSort(data);
+            // Average case (random order)
+            List<Data> avgCase = new ArrayList<>();
+            for (Data d : data) avgCase.add(new Data(d.key, d.value));
+            long avgStart = System.nanoTime();
+            mergeSort(avgCase);
+            long avgEnd = System.nanoTime();
+            double avgTime = (avgEnd - avgStart) / 1e9;
 
-            long endTime = System.currentTimeMillis();
-            double elapsedSeconds = (endTime - startTime) / 1000.0;
+            // Best case (already sorted by value)
+            List<Data> bestCase = new ArrayList<>(data);
+            bestCase.sort(Comparator.comparing(d -> d.value));
+            long bestStart = System.nanoTime();
+            mergeSort(bestCase);
+            long bestEnd = System.nanoTime();
+            double bestTime = (bestEnd - bestStart) / 1e9;
 
-            System.out.println("Sorting completed.");
-            System.out.println("Input size: " + inputSize);
-            System.out.printf("Time taken: %.6f seconds%n", elapsedSeconds);
+            // Worst case (reverse sorted by value)
+            List<Data> worstCase = new ArrayList<>(data);
+            worstCase.sort((a, b) -> b.value.compareTo(a.value));
+            long worstStart = System.nanoTime();
+            mergeSort(worstCase);
+            long worstEnd = System.nanoTime();
+            double worstTime = (worstEnd - worstStart) / 1e9;
 
-            System.out.println("Writing first 5 sorted rows to output file...");
-            writeCSVFirst5(data, outputFile);
+            // Write the sorted output for average case only (first 5 rows)
+            writeCSVFirst5(avgCase, outputFile);
 
-            System.out.println("Sorted data written to " + outputFile);
+            // Print only the runtimes
+            System.out.printf("Dataset loading time: %.6f seconds\n", loadTime);
+            System.out.printf("Best case: %.6f seconds\n", bestTime);
+            System.out.printf("Average case: %.6f seconds\n", avgTime);
+            System.out.printf("Worst case: %.6f seconds\n", worstTime);
 
         } catch (IOException e) {
             System.err.println("Error: " + e.getMessage());

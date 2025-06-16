@@ -1,81 +1,56 @@
 import csv
-import time
-
-class Data:
-    def __init__(self, key, value):
-        self.key = int(key)
-        self.value = value
-
-def binary_search(arr, target_key):
-    left, right = 0, len(arr) - 1
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid].key == target_key:
-            return mid
-        elif arr[mid].key < target_key:
-            left = mid + 1
-        else:
-            right = mid - 1
-    return -1
+import re
+import sys
 
 def read_csv(filename):
-    data_list = []
+    data = []
     with open(filename, newline='') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            if len(row) == 2 and row[0].isdigit():
-                data_list.append(Data(row[0].strip(), row[1].strip()))
-    return data_list
+            if len(row) == 2:
+                try:
+                    key = int(row[0].strip())
+                    val = row[1].strip()
+                    data.append((key, val))
+                except ValueError:
+                    pass
+    return data
 
-def write_search_times(filename, best_time, avg_time, worst_time):
-    with open(filename, 'w') as f:
-        f.write(f"Best case running time: {best_time:.6e} seconds\n")
-        f.write(f"Average case running time: {avg_time:.6e} seconds\n")
-        f.write(f"Worst case running time: {worst_time:.6e} seconds\n")
+def binary_search(arr, target, out_file):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = left + (right - left) // 2
+        out_file.write(f"{mid+1}: {arr[mid][0]}/{arr[mid][1]}\n")
+        if arr[mid][0] == target:
+            return mid
+        elif arr[mid][0] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    out_file.write("-1\n")
+    return -1
 
 def main():
-    input_file = "merge_sort_1000000.csv"
-    output_file = "binary_search_1000000.txt"
-
-    data = read_csv(input_file)
-    dataset_size = len(data)
-    if dataset_size == 0:
-        print("Dataset is empty!")
+    if len(sys.argv) < 3:
+        print("Usage: python binary_search.py <sorted_csv> <target_integer>")
         return
 
-    # Explicit number of searches to perform
-    n = 100000  # For example, 100,000 searches; you can change this as needed
+    input_file = sys.argv[1]
+    target = int(sys.argv[2])
 
-    # Prepare targets safely
-    middle_index = dataset_size // 2
-    best_target = data[middle_index].key
-    avg_target = data[min(middle_index + 1, dataset_size - 1)].key
-    worst_target = -1  # Not in dataset
+    match = re.search(r'(\d+)', input_file)
+    num_part = match.group(1) if match else ''
+    output_file = f"binary_search_step_{num_part}.txt"
 
-    # Run n searches for best case
-    start = time.perf_counter()
-    for _ in range(n):
-        binary_search(data, best_target)
-    end = time.perf_counter()
-    best_time = (end - start) / n
+    arr = read_csv(input_file)
+    if not arr:
+        print("No data found in the file.")
+        return
 
-    # Run n searches for average case
-    start = time.perf_counter()
-    for _ in range(n):
-        binary_search(data, avg_target)
-    end = time.perf_counter()
-    avg_time = (end - start) / n
+    with open(output_file, 'w') as out_file:
+        binary_search(arr, target, out_file)
 
-    # Run n searches for worst case
-    start = time.perf_counter()
-    for _ in range(n):
-        binary_search(data, worst_target)
-    end = time.perf_counter()
-    worst_time = (end - start) / n
-
-    write_search_times(output_file, best_time, avg_time, worst_time)
-    print(f"Performed {n} searches per case.")
-    print(f"Running times saved to {output_file}")
+    print(f"Binary search steps saved to {output_file}")
 
 if __name__ == "__main__":
     main()
